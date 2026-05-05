@@ -71,9 +71,22 @@ if [ "${INSTALL_NODE:-0}" = "1" ]; then
     if ! has brew; then
       INFO "Homebrew není, instaluji…"
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      # Add brew to PATH for this session (Apple Silicon)
+      # Persist brew on PATH for future shells too — otherwise user has to
+      # re-export every time they open a terminal.
+      BREW_PREFIX=""
       if [ -d "/opt/homebrew/bin" ]; then
-        export PATH="/opt/homebrew/bin:$PATH"
+        BREW_PREFIX="/opt/homebrew"
+      elif [ -d "/usr/local/Homebrew" ]; then
+        BREW_PREFIX="/usr/local"
+      fi
+      if [ -n "$BREW_PREFIX" ]; then
+        eval "$("$BREW_PREFIX/bin/brew" shellenv)"
+        SHELL_RC="$HOME/.zprofile"
+        [ "${SHELL:-}" = "/bin/bash" ] && SHELL_RC="$HOME/.bash_profile"
+        if ! grep -qs "brew shellenv" "$SHELL_RC" 2>/dev/null; then
+          printf '\neval "$(%s/bin/brew shellenv)"\n' "$BREW_PREFIX" >> "$SHELL_RC"
+          INFO "Přidáno 'brew shellenv' do $SHELL_RC (projeví se v dalším terminálu)."
+        fi
       fi
     fi
     brew install node
@@ -149,7 +162,7 @@ else
   if [ -d "$DEST" ]; then
     FAIL "Cesta $DEST existuje, ale není to git repo. Smažte ji a spusťte znovu."
   fi
-  INFO "Klonuji starter do $DEST…"
+  INFO "Klonuji starter do ${DEST}…"
   git clone --depth 1 https://github.com/blaze-it/agent-day-starter.git "$DEST"
   OK "Starter naklonován"
 fi
