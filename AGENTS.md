@@ -34,7 +34,7 @@ The `get.blaze.codes` one-liners are not live: the name did not resolve (NXDOMAI
 
 ## Deploy
 
-Nothing is deployed. The repo is public and is itself the distribution: the installers clone the default branch onto the participant's machine, and existing installs pick up changes with `git pull`. Anything merged to `main` therefore reaches every new and updated install.
+Nothing is deployed. The repo is public and is itself the distribution: the installers clone the default branch onto the participant's machine, and installs that still track this repo pick up changes with `git pull`. Anything merged to `main` therefore reaches every new install and every upstream-tracking install that pulls; client copies moved to their own repository do not receive it automatically.
 
 ## Rules for template maintainers
 
